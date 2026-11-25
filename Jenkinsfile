@@ -30,7 +30,7 @@ pipeline {
 
         stage('Tests unitaires') {
             steps {
-                bat 'python -m pytest'
+                bat 'python -m pytest --ignore=Release'
             }
         }
 
@@ -45,6 +45,21 @@ pipeline {
                 copy requirements.txt Release
                 powershell Compress-Archive -Path Release\\* -DestinationPath Release.zip -Force
                 '''
+            }
+        }
+
+        stage('Publication dans Nexus') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'nexus-credentials',
+                    usernameVariable: 'NEXUS_USER',
+                    passwordVariable: 'NEXUS_PASSWORD'
+                )]) {
+                    bat '''
+                        @echo off
+                        curl.exe --fail --show-error -u "%NEXUS_USER%:%NEXUS_PASSWORD%" --upload-file Release.zip http://localhost:8081/repository/python-release/Release.zip
+                    '''
+                }
             }
         }
     }
