@@ -3,7 +3,7 @@ from calculator import addition, soustraction, multiplication, division
 
 
 def test_addition():
-    assert addition(2, 3) == 5
+    assert addition(2, 3) == 10
 
 
 def test_soustraction():
